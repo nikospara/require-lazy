@@ -72,7 +72,7 @@ function buildBundles(bundlesArray, options, config, callback) {
 	function loop() {
 		nextBundle = bundlesArray.shift();
 		if( typeof(nextBundle) !== "undefined" ) {
-			if( nextBundle.exclusive ) {
+			if( nextBundle.exclusive || nextBundle.includedIn ) {
 				// exclusive bundles are included in the module, skip
 				loop();
 			}
@@ -146,7 +146,7 @@ function createModulesRegistry(pmresult, options, config, callback) {
 //		text = "define(['" + LIB_LAZY + "'], function(lazy) {\n";
 		text = "define('lazy-registry',['" + LIB_LAZY + "','require'], function(lazy,require) {\n";
 		for( i=0; i < a.length; i++ ) {
-			if( !a[i].exclusive ) text += "lazy.registerBundle('" + a[i].id + "','" + a[i].hash + "');\n";
+			if( !(a[i].exclusive || a[i].includedIn) ) text += "lazy.registerBundle('" + a[i].id + "','" + a[i].hash + "');\n";
 		}
 		a = pmresult.modulesArray;
 		for( i=0; i < a.length; i++ ) {
@@ -167,7 +167,7 @@ function createModulesRegistry(pmresult, options, config, callback) {
 		text = "lazy.registerModule(new lazy.Stub('" + module.name + "',require,[";
 		if( module.bundleDeps != null && module.bundleDeps.length > 0 ) {
 			for( i=0; i < module.bundleDeps.length; i++ ) {
-				if( !module.bundleDeps[i].exclusive ) {
+				if( !(module.bundleDeps[i].exclusive || module.bundleDeps[i].includedIn) ) {
 					if( first ) first = false;
 					else text += ",";
 					text += "'" + module.bundleDeps[i].id + "'";

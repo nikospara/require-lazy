@@ -5,13 +5,13 @@ function($, tab2, tab3, template) {
 	var
 		tabActivationMap = {
 			"main_tab2": function(panel) {
-				tab2.get().done(function(m) {
+				tab2.get().then(function(m) {
 					m.render(panel);
 				});
 			},
 			
 			"main_tab3": function(panel) {
-				tab3.get().done(function(m) {
+				tab3.get().then(function(m) {
 					m.render(panel);
 				});
 			}

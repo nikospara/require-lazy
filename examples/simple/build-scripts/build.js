@@ -10,6 +10,7 @@ var
 // get a fresh copy of the files
 copyFileSync("../../../src/lib/lazy.js", __dirname + "/../public/scripts/lib/lazy.js");
 copyFileSync("../../../src/lib/lazy-builder.js", __dirname + "/../public/scripts/lib/lazy-builder.js");
+copyFileSync("../../../src/lib/promise-adaptor-jquery.js", __dirname + "/../public/scripts/lib/promise-adaptor-jquery.js");
 
 findDeps(options, config, function(modules) {
 	var pmresult = processModules(modules);

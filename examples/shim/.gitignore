@@ -1,5 +1,6 @@
 node_modules/.bin
 node_modules/express
-public/scripts/lib/lazy.js
-public/scripts/lib/lazy-builder.js
+WebContent/scripts/lib/lazy.js
+WebContent/scripts/lib/lazy-builder.js
+WebContent/scripts/lib/promise-adaptor-jquery.js
 build/*

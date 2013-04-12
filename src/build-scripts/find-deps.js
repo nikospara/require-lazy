@@ -32,11 +32,18 @@ function buildAllModules(options, config, entryModule, callback) {
 	buildModule(entryModule, null);
 	
 	function buildModule(moduleName, parentModuleName) {
+		var originalExcludes = config.exclude, originalIncludes = config.include;
 		// do not write anything at this phase
 		config.out = function(text) {};
 		config.name = moduleName;
-		if( parentModuleName != null ) config.exclude = [LIB_LAZY];
+//		if( parentModuleName != null ) config.exclude = [LIB_LAZY];
+		if( parentModuleName == null ) {
+			if( config.include == null ) config.include = ["promise-adaptor"];
+			else config.include = config.include.concat(["promise-adaptor"]);
+		}
 		rjs.optimize(config, function(buildResponse) {
+			config.exclude = originalExcludes;
+			config.include = originalIncludes;
 			handleBuildResponse(buildResponse, parentModuleName);
 			var nextModule = modulesToCompile.shift();
 			while( typeof(nextModule) !== "undefined" && modules[nextModule.name] != null ) {

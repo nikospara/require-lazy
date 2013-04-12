@@ -1,7 +1,6 @@
-define(['module'], function (module) {
+define(["module","promise-adaptor"], function (module,promiseAdaptor) {
 
 
-	// TODO depends on jQuery for the Deferred functionality, this should be redesigned with an adapter interface
 	var
 		LazyStub,
 		bundleRegistry = {}, moduleRegistry = {},
@@ -27,7 +26,7 @@ define(['module'], function (module) {
 		get: function() {
 			if( this.realModule === null ) {
 				var self= this;
-				self.deferred = jQuery.Deferred();
+				self.deferred = promiseAdaptor.makeDeferred();
 				if( typeof(self.bundleDeps) === "undefined" ) { // non-build mode
 					self.parentRequire([self.name], function success(m) {
 						self.parentRequire = null;
@@ -41,12 +40,12 @@ define(['module'], function (module) {
 					doBundleLoad.call(self);
 				}
 			}
-			return this.deferred.promise(); // NOTE: promise() is cheap, so no problem calling it every time
+			return promiseAdaptor.makePromise(this.deferred);
 		}
 	};
 	
 	function doBundleLoad() { // called in the context of the LazyStub
-		var bundlesToLoad = [], bundleUrlsToLoad = [], bundlesToLoadDeferred = jQuery.Deferred(), whenPromises = [], bundle, url, i, self = this;
+		var bundlesToLoad = [], bundleUrlsToLoad = [], bundlesToLoadDeferred = promiseAdaptor.makeDeferred(), whenPromises = [], bundle, url, i, self = this;
 		
 		for( i=0; i < this.bundleDeps.length; i++ ) {
 			bundle = bundleRegistry[this.bundleDeps[i]];
@@ -58,7 +57,7 @@ define(['module'], function (module) {
 //		url = this.parentRequire.toUrl(removePluginsFromName(this.name)) + "-built.js?v=" + this.hash;
 		url = baseUrl + "/" + removePluginsFromName(this.name) + "-built.js?v=" + this.hash; // XXX depends on global
 		bundleUrlsToLoad.push(url);
-		whenPromises.push(bundlesToLoadDeferred.promise());
+		whenPromises.push(promiseAdaptor.makePromise(bundlesToLoadDeferred));
 		
 		LazyLoad.js(bundleUrlsToLoad, function() {
 			for( var i=0; i < bundlesToLoad.length; i++ ) {
@@ -81,7 +80,7 @@ define(['module'], function (module) {
 		function loadBundle(bundleId, bundle, parentRequire) {
 			bundlesToLoad.push(bundle);
 			bundle.status = LOADING;
-			bundle.deferred = jQuery.Deferred();
+			bundle.deferred = promiseAdaptor.makeDeferred();
 			bundleUrlsToLoad.push(makeBundleUrl(bundleId,bundle,parentRequire));
 		}
 		

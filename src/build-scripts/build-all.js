@@ -50,11 +50,16 @@ function buildModules(modulesArray, options, config, callback) {
 }
 
 function buildModule(options, config, module, callback) {
-	var moduleName = module.name;
+	var moduleName = module.name, originalIncludes = config.include;
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, removePluginsFromName(moduleName) + "-built.js"));
 	config.name = moduleName;
 	config.exclude = module.excludedDeps;
+	if( module.parents.length === 0 ) {
+		if( config.include == null ) config.include = ["promise-adaptor"];
+		else config.include = config.include.concat(["promise-adaptor"]);
+	}
 	rjs.optimize(config, function() {
+		config.include = originalIncludes;
 		makeChecksum(config.out, function(hash) {
 			module.hash = hash;
 			callback();

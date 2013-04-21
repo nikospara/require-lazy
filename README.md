@@ -39,13 +39,13 @@ Dependencies
 ------------
 This project requires, includes, or uses code from:
 
-- [Node.js](http://nodejs.org/) (required for building the target app)
+- [Node.js](http://nodejs.org/) (required for building the target app and running the examples)
 - [requirejs](https://github.com/jrburke/requirejs)
 - [almond](https://github.com/jrburke/almond)
 - [lazyload](https://github.com/rgrove/lazyload/)
 - [r.js](https://github.com/jrburke/r.js)
 - [node.extend](https://github.com/dreamerslab/node.extend)
-- [jQuery](http://jquery.com/) (temporary dependency on Deferred implementation)
+- [jQuery](http://jquery.com/) (dependency on Deferred implementation, can use any other library through adapter)
 - [expressjs](http://expressjs.com/) (for serving the examples)
 
 Development Status
@@ -53,7 +53,5 @@ Development Status
 This project is an idea in the early stages of development. While many things work, it is expected
 that many more will not. Even worse, some things may not work *as* expected. Moreover the code is
 not thoroughly tested yet.
-
-Metadata and module discovery will be added in the near future.
 
 Ideas, critisism, comments, code contributions are all welcome!

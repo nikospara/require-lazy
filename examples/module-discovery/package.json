@@ -1,0 +1,9 @@
+{
+	"name": "module-discovery",
+	"description": "Module discovery based on the simple example",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"express": "3.x"
+	}
+}

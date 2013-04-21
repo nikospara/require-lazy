@@ -22,6 +22,13 @@ function findDeps(options, config, callback) {
 	// make it explicit that no optimization must be done at this point for faster execution
 	config.optimize = "none";
 	config.baseUrl = path.normalize(path.join(options.basePath, config.baseUrl));
+	// `lazy-registry` is generated, provide the text here
+	shared.putLazyRegistryText(config, shared.createModulesRegistryText(null, options, {
+		inludeModuleName: false,
+		generateBody: false,
+		nullBundleDeps: false,
+		writeBundleRegistrations: false
+	}));
 	
 	buildAllModules(options, config, entryModule, callback);
 }
@@ -29,6 +36,7 @@ function findDeps(options, config, callback) {
 function buildAllModules(options, config, entryModule, callback) {
 	var modules = {}, modulesToCompile = [];
 	
+	if( typeof(options.discoverModules) === "function" ) translateModuleNames(options.discoverModules());
 	buildModule(entryModule, null);
 	
 	function buildModule(moduleName, parentModuleName) {
@@ -36,10 +44,9 @@ function buildAllModules(options, config, entryModule, callback) {
 		// do not write anything at this phase
 		config.out = function(text) {};
 		config.name = moduleName;
-//		if( parentModuleName != null ) config.exclude = [LIB_LAZY];
 		if( parentModuleName == null ) {
-			if( config.include == null ) config.include = ["promise-adaptor"];
-			else config.include = config.include.concat(["promise-adaptor"]);
+			if( config.include == null ) config.include = shared.ROOT_IMPLICIT_DEPS;
+			else config.include = config.include.concat(shared.ROOT_IMPLICIT_DEPS);
 		}
 		rjs.optimize(config, function(buildResponse) {
 			config.exclude = originalExcludes;
@@ -91,6 +98,16 @@ function buildAllModules(options, config, entryModule, callback) {
 					deps: []
 				};
 			}
+		}
+	}
+	
+	function translateModuleNames(moduleNames) {
+		var i;
+		for( i=0; i < moduleNames.length; i++ ) {
+			modulesToCompile.push({
+				name: moduleNames[i],
+				parentName: entryModule
+			});
 		}
 	}
 }

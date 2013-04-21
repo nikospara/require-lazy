@@ -27,7 +27,7 @@ define(["module","promise-adaptor"], function (module,promiseAdaptor) {
 			if( this.realModule === null ) {
 				var self= this;
 				self.deferred = promiseAdaptor.makeDeferred();
-				if( typeof(self.bundleDeps) === "undefined" ) { // non-build mode
+				if( self.bundleDeps == null ) { // non-built mode
 					self.parentRequire([self.name], function success(m) {
 						self.parentRequire = null;
 						self.realModule = m;

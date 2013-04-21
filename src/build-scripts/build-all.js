@@ -8,10 +8,13 @@ var
 	shared = require("./shared"),
 	removePluginsFromName = shared.removePluginsFromName,
 	
-	LIB_LAZY = "lazy";
+	LIB_LAZY = "lazy",
+	PREFIX_LAZY = LIB_LAZY + "!";
 
 
 function buildAll(pmresult, options, config, callback) {
+	var splitModules;
+	
 	options = extend(true, {}, options);
 	options.baseUrl = config.baseUrl;
 	
@@ -22,15 +25,48 @@ function buildAll(pmresult, options, config, callback) {
 // uncomment this for debugging the output
 //	config.optimize = "none";
 	config.baseUrl = path.normalize(path.join(options.basePath, config.baseUrl));
-	// TODO Code duplication with fd.findDeps()
 	// remember the original entry point name
 	config.originalName = config.name;
+	// communicate the module name
+	addLibLazyNameToConfig(config);
 	
-	buildModules(pmresult.modulesArray, options, config, function() {
+	// the main module must be built last so that hashes are calculated
+	splitModules = splitMainModuleFromArray(pmresult.modulesArray, options, config);
+	
+	buildModules(splitModules.otherModules, options, config, function() {
 		buildBundles(pmresult.bundles.bundlesArray, options, config, function() {
-			createModulesRegistry(pmresult, options, config, callback);
+			// `lazy-registry` is generated, provide the text here
+			shared.putLazyRegistryText(config, createModulesRegistryText(pmresult, options));
+			buildModules(splitModules.mainModule, options, config, function() {
+				callback();
+			});
 		});
 	});
+}
+
+function addLibLazyNameToConfig(config) {
+	var lazycfg = config.config;
+	if( lazycfg == null ) {
+		lazycfg = {};
+		config.config = lazycfg;
+	}
+	lazycfg = config.config[LIB_LAZY];
+	if( lazycfg == null ) {
+		lazycfg = {};
+		config.config[LIB_LAZY] = lazycfg;
+	}
+	lazycfg.lazyModuleName = LIB_LAZY;
+}
+
+function splitMainModuleFromArray(modulesArray, options, config) {
+	var
+		 entryModule = options.entryModule || config.name,
+		 ret = {mainModule: [], otherModules: []}, i;
+	for( i=0; i < modulesArray.length; i++ ) {
+		if( modulesArray[i].name === entryModule ) ret.mainModule.push(modulesArray[i]);
+		else ret.otherModules.push(modulesArray[i]);
+	}
+	return ret;
 }
 
 function buildModules(modulesArray, options, config, callback) {
@@ -55,8 +91,9 @@ function buildModule(options, config, module, callback) {
 	config.name = moduleName;
 	config.exclude = module.excludedDeps;
 	if( module.parents.length === 0 ) {
-		if( config.include == null ) config.include = ["promise-adaptor"];
-		else config.include = config.include.concat(["promise-adaptor"]);
+		if( config.include == null ) config.include = shared.ROOT_IMPLICIT_DEPS;
+		else config.include = config.include.concat(shared.ROOT_IMPLICIT_DEPS);
+		config.include = config.include.concat(discoveredModules(options));
 	}
 	rjs.optimize(config, function() {
 		config.include = originalIncludes;
@@ -65,8 +102,19 @@ function buildModule(options, config, module, callback) {
 			callback();
 		});
 	}, function(err) {
-		console.log(err);
+		console.log("build-all::buildModule(%s): %s",module.name,err);
 	});
+}
+
+function discoveredModules(options) {
+	var ret = [], i, disovered;
+	if( typeof(options.discoverModules) === "function" ) {
+		disovered = options.discoverModules();
+		for( i=0; i < disovered.length; i++ ) {
+			ret.push(PREFIX_LAZY + disovered[i]);
+		}
+	}
+	return ret;
 }
 
 function buildBundles(bundlesArray, options, config, callback) {
@@ -120,79 +168,17 @@ function makeChecksum(filename, callback) {
 	});
 }
 
-function createModulesRegistry(pmresult, options, config, callback) {
-// I like this more, but for some reason config.out() is not called
-// 	var optimizedText;
-// 	config.out = function(text) {
-// 		optimizedText = text;
-// 	};
-// 	delete config.name;
-// 	config.name = "lazy-registry";
-// 	config.exclude = [];
-// 	config.include = ["lazy-registry"];
-// 	config.rawText = {
-// 		"lazy-registry": makeRawText()
-// 	};
-// 	rjs.optimize(config, function() {
-// 		var filename = path.normalize(path.join(options.outputBaseDir, options.baseUrl, config.originalName + "-built.js"));
-// 		fs.appendFile(filename, optimizedText, function(err) {
-// 			callback();
-// 		});
-// 	});
-	var text = makeRawText(), filename = path.normalize(path.join(options.outputBaseDir, options.baseUrl, config.originalName + "-built.js"));
-	fs.appendFile(filename, text, function(err) {
-		callback();
+function createModulesRegistryText(pmresult, options) {
+	var text;
+	
+	text = shared.createModulesRegistryText(pmresult, options, {
+		inludeModuleName: true,
+		generateBody: true,
+		nullBundleDeps: false,
+		writeBundleRegistrations: true
 	});
 	
-	function makeRawText() {
-		var text, i, a;
-		
-		a = pmresult.bundles.bundlesArray
-//		text = "define(['" + LIB_LAZY + "'], function(lazy) {\n";
-		text = "define('lazy-registry',['" + LIB_LAZY + "','require'], function(lazy,require) {\n";
-		for( i=0; i < a.length; i++ ) {
-			if( !(a[i].exclusive || a[i].includedIn) ) text += "lazy.registerBundle('" + a[i].id + "','" + a[i].hash + "');\n";
-		}
-		a = pmresult.modulesArray;
-		for( i=0; i < a.length; i++ ) {
-			if( a[i].parents.length > 0 ) text += writeModuleRegistration(a[i]); // skip the main module
-		}
-		text += "});\n";
-		
-		a = pmresult.modulesArray;
-		for( i=0; i < a.length; i++ ) {
-			if( a[i].parents.length > 0 ) text += writeModule(a[i]);
-		}
-		
-		return text;
-	}
-	
-	function writeModuleRegistration(module) {
-		var i, text, first = true;
-		text = "lazy.registerModule(new lazy.Stub('" + module.name + "',require,[";
-		if( module.bundleDeps != null && module.bundleDeps.length > 0 ) {
-			for( i=0; i < module.bundleDeps.length; i++ ) {
-				if( !(module.bundleDeps[i].exclusive || module.bundleDeps[i].includedIn) ) {
-					if( first ) first = false;
-					else text += ",";
-					text += "'" + module.bundleDeps[i].id + "'";
-				}
-			}
-		}
-		text += "],";
-		text += "'" + module.hash + "',";
-		text += "null"; // TODO Metadata
-		text += "));\n";
-		return text;
-	}
-	
-	function writeModule(module) {
-		var i, text, first = true;
-		text = "define('" + LIB_LAZY + "!" + module.name + "',['" + LIB_LAZY + "','lazy-registry'],function(lazy) {\n";
-		text += "return lazy.getModule('" + module.name + "');\n";
-		text += "});\n";
-		return text;
-	}
+	return text;
 }
 
 

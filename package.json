@@ -1,0 +1,28 @@
+{
+	"name": "require-lazy",
+	"description": "A RequireJS plugin for lazy loading AMD modules packaged with r.js, automatically splitting packaged code in bundles, cache-breaking the bundles only when the code changes, and defining module metadata and module discovery in Javascript applications.",
+	"version": "0.1.1",
+	"author": {
+		"name": "Nikos Paraskevopoulos",
+		"email": "nikospara@yahoo.com"
+	},
+	"dependencies": {
+	},
+	"devDependencies": {
+	},
+	"keywords": [
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/nikospara/require-lazy.git"
+	},
+	"bugs": {
+		"url": "https://github.com/nikospara/require-lazy/issues",
+		"email": "nikospara@yahoo.com"
+	},
+	"files": [
+		"src/build-scripts",
+		"src/build-scripts/lib/extend.js"
+	],
+	"main": "src/build-scripts/index"
+}

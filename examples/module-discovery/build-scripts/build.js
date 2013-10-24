@@ -4,6 +4,10 @@ var
 	findDeps = require("../../../src/build-scripts/find-deps"),
 	processModules = require("../../../src/build-scripts/process-modules"),
 	buildAll = require("../../../src/build-scripts/build-all"),
+//	requireLazy = require("require-lazy"),
+//	findDeps = requireLazy.findDeps,
+//	processModules = requireLazy.processModules,
+//	buildAll = requireLazy.buildAll,
 	options = require("./options.js").config,
 	config = require("./app.build.json");
 

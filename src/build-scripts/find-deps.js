@@ -1,9 +1,9 @@
 // find dependencies
 var
-	rjs = require("./lib/r.js"),
+	rjs = require("requirejs"),
 	fs = require("fs"),
 	path = require("path"),
-	extend = require("./lib/extend"),
+	extend = require("extend"),
 	shared = require("./shared"),
 	mapPathInverse = require("./map-path-inverse"),
 

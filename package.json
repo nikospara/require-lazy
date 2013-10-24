@@ -7,6 +7,8 @@
 		"email": "nikospara@yahoo.com"
 	},
 	"dependencies": {
+		"requirejs": "2.x",
+		"extend": "1.x"
 	},
 	"devDependencies": {
 	},
@@ -21,8 +23,7 @@
 		"email": "nikospara@yahoo.com"
 	},
 	"files": [
-		"src/build-scripts",
-		"src/build-scripts/lib/extend.js"
+		"src/build-scripts"
 	],
 	"main": "src/build-scripts/index"
 }

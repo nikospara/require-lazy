@@ -1,10 +1,10 @@
 // build all
 var
-	rjs = require("./lib/r.js"),
+	rjs = require("requirejs"),
 	path = require("path"),
 	crypto = require("crypto"),
 	fs = require('fs'),
-	extend = require("./lib/extend"),
+	extend = require("extend"),
 	shared = require("./shared"),
 	removePluginsFromName = shared.removePluginsFromName,
 	

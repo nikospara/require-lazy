@@ -1,6 +1,6 @@
 // shared code
 var
-	extend = require("./lib/extend"),
+	extend = require("extend"),
 	
 	LIB_LAZY = "lazy",
 	

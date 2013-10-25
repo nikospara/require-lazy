@@ -1,9 +1,10 @@
 {
-	"name": "simple",
-	"description": "A very simple app for testing various cases",
-	"version": "0.0.1",
+	"name": "simple-packages",
+	"description": "Mod of the simple example to test the packages feature of require.js",
+	"version": "0.1.0",
 	"private": true,
 	"dependencies": {
-		"express": "3.x"
+		"express": "3.x",
+		"require-lazy": "*"
 	}
 }

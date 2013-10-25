@@ -1,7 +1,7 @@
 Mod of the simple example of Require-Lazy utilizing the packages feature
 ========================================================================
 
-This example is a modification of the simple example ti use the packages feature of require.js (see [here](http://requirejs.org/docs/api.html#packages)).
+This example is a modification of the simple example to use the packages feature of require.js (see [here](http://requirejs.org/docs/api.html#packages)).
 
 Setup
 -----

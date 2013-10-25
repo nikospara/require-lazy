@@ -2,9 +2,6 @@
 var
 	fs = require("fs"),
 	requireLazy = require("require-lazy"),
-	findDeps = requireLazy.findDeps,
-	processModules = requireLazy.processModules,
-	buildAll = requireLazy.buildAll,
 	options = require("./options.js").config,
 	config = require("./app.build.json");
 
@@ -13,14 +10,11 @@ copyFileSync("../../../src/lib/lazy.js", __dirname + "/../WebContent/scripts/lib
 copyFileSync("../../../src/lib/lazy-builder.js", __dirname + "/../WebContent/scripts/lib/lazy-builder.js");
 copyFileSync("../../../src/lib/promise-adaptor-jquery.js", __dirname + "/../WebContent/scripts/lib/promise-adaptor-jquery.js");
 
-findDeps(options, config, function(modules) {
-	var pmresult = processModules(modules);
+requireLazy.build(options, config, function(modules, pmresult) { // this callback is optional
 	var util = require("util"), path = require("path");
-	buildAll(pmresult, options, config, function() {
-		fs.writeFileSync(path.join(options.outputBaseDir, "modules.js"), util.inspect(modules,{depth:null,colors:false}));
-		fs.writeFileSync(path.join(options.outputBaseDir, "bundles.js"), util.inspect(pmresult.bundles,{depth:null,colors:false}));
-		console.log("success");
-	});
+	fs.writeFileSync(path.join(options.outputBaseDir, "modules.js"), util.inspect(modules,{depth:null,colors:false}));
+	fs.writeFileSync(path.join(options.outputBaseDir, "bundles.js"), util.inspect(pmresult.bundles,{depth:null,colors:false}));
+	console.log("success");
 });
 
 function copyFileSync(srcFile, destFile) {

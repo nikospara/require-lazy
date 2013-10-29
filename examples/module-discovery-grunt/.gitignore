@@ -1,0 +1,5 @@
+node_modules/*
+public/scripts/lib/lazy.js
+public/scripts/lib/lazy-builder.js
+public/scripts/lib/promise-adaptor-jquery.js
+build/*

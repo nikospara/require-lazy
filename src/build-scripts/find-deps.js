@@ -11,7 +11,7 @@ var
 	PREFIX_LAZY = LIB_LAZY + "!";
 
 
-function findDeps(options, config, callback) {
+function findDeps(options, config, callback, errback) {
 	var entryModule = options.entryModule || config.name, mainConfig;
 	
 	options = extend(true, {}, options);
@@ -35,7 +35,7 @@ function findDeps(options, config, callback) {
 		writeBundleRegistrations: false
 	}));
 	
-	buildAllModules(options, config, entryModule, callback);
+	buildAllModules(options, config, entryModule, callback, errback);
 }
 
 function loadMainConfig(options, config) {
@@ -60,7 +60,7 @@ function loadMainConfig(options, config) {
 	}
 }
 
-function buildAllModules(options, config, entryModule, callback) {
+function buildAllModules(options, config, entryModule, callback, errback) {
 	var modules = {}, modulesToCompile = [];
 	
 	if( typeof(options.discoverModules) === "function" ) translateModuleNames(options.discoverModules());
@@ -93,7 +93,8 @@ function buildAllModules(options, config, entryModule, callback) {
 				callback(modules);
 			}
 		}, function(err) {
-			console.log(moduleName + " - " + err);
+			if( typeof(errback) === "function" ) errback("find-deps", err, moduleName);
+			else console.log(moduleName + " - " + err);
 		});
 	}
 	

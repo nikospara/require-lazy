@@ -12,7 +12,7 @@ var
 	PREFIX_LAZY = LIB_LAZY + "!";
 
 
-function buildAll(pmresult, options, config, callback) {
+function buildAll(pmresult, options, config, callback, errback) {
 	var splitModules;
 	
 	options = extend(true, {}, options);
@@ -39,9 +39,9 @@ function buildAll(pmresult, options, config, callback) {
 			shared.putLazyRegistryText(config, createModulesRegistryText(pmresult, options));
 			buildModules(splitModules.mainModule, options, config, function() {
 				callback();
-			});
-		});
-	});
+			}, errback);
+		}, errback);
+	}, errback);
 }
 
 function addLibLazyNameToConfig(config) {
@@ -69,7 +69,7 @@ function splitMainModuleFromArray(modulesArray, options, config) {
 	return ret;
 }
 
-function buildModules(modulesArray, options, config, callback) {
+function buildModules(modulesArray, options, config, callback, errback) {
 	var nextModule;
 	modulesArray = modulesArray.slice(0);
 	loop();
@@ -77,7 +77,7 @@ function buildModules(modulesArray, options, config, callback) {
 	function loop() {
 		nextModule = modulesArray.shift();
 		if( typeof(nextModule) !== "undefined" ) {
-			buildModule(options, config, nextModule, loop);
+			buildModule(options, config, nextModule, loop, errback);
 		}
 		else {
 			if( typeof(callback) === "function" ) callback();
@@ -85,7 +85,7 @@ function buildModules(modulesArray, options, config, callback) {
 	}
 }
 
-function buildModule(options, config, module, callback) {
+function buildModule(options, config, module, callback, errback) {
 	var moduleName = module.name, originalIncludes = config.include;
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, removePluginsFromName(moduleName) + "-built.js"));
 	config.name = moduleName;
@@ -102,7 +102,8 @@ function buildModule(options, config, module, callback) {
 			callback();
 		});
 	}, function(err) {
-		console.log("build-all::buildModule(%s): %s",module.name,err);
+		if( typeof(errback) === "function" ) errback("build-all::buildModule", err, module);
+		else console.log("build-all::buildModule(%s): %s",module.name,err);
 	});
 }
 
@@ -117,7 +118,7 @@ function discoveredModules(options) {
 	return ret;
 }
 
-function buildBundles(bundlesArray, options, config, callback) {
+function buildBundles(bundlesArray, options, config, callback, errback) {
 	var nextBundle;
 	bundlesArray = bundlesArray.slice(0);
 	loop();
@@ -130,7 +131,7 @@ function buildBundles(bundlesArray, options, config, callback) {
 				loop();
 			}
 			else {
-				buildBundle(options, config, nextBundle, loop);
+				buildBundle(options, config, nextBundle, loop, errback);
 			}
 		}
 		else {
@@ -139,7 +140,7 @@ function buildBundles(bundlesArray, options, config, callback) {
 	}
 }
 
-function buildBundle(options, config, bundle, callback) {
+function buildBundle(options, config, bundle, callback, errback) {
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, "bundles", bundle.id + ".js"));
 	delete config.name;
 	config.exclude = [];
@@ -150,7 +151,8 @@ function buildBundle(options, config, bundle, callback) {
 			callback();
 		});
 	}, function(err) {
-		console.log(err);
+		if( typeof(errback) === "function" ) errback("build-all::buildBundle", err, bundle);
+		else console.log("build-all::buildBundle(%s): %s",bundle.id,err);
 	});
 }
 

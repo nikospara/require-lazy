@@ -18,6 +18,6 @@ requireLazy.build(options, config, function(modules, pmresult) { // this callbac
 });
 
 function copyFileSync(srcFile, destFile) {
-	var encoding = "UTF-8", content = fs.readFileSync(srcFile, encoding);
+	var encoding = "utf8", content = fs.readFileSync(srcFile, encoding);
 	fs.writeFileSync(destFile, content, encoding);
 }

@@ -42,7 +42,7 @@ function loadMainConfig(options, config) {
 	var ret = null, mainConfigFileContents;
 	if( config && config.mainConfigFile ) {
 		if( typeof(options.makeBuildRelativePath) !== "function" ) throw new Error("options should contain a method makeBuildRelativePath()");
-		mainConfigFileContents = fs.readFileSync(options.makeBuildRelativePath(config.mainConfigFile), {encoding:"UTF-8"});
+		mainConfigFileContents = fs.readFileSync(options.makeBuildRelativePath(config.mainConfigFile), {encoding:"utf8"});
 		ret = evalMainConfig();
 	}
 	return ret;

@@ -1,0 +1,14 @@
+{
+	"name": "module-discovery-grunt",
+	"description": "Module discovery based on the simple example and built with Grunt",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"express": "3.x"
+	},
+	"devDependencies": {
+		"grunt": "~0.4.1",
+		"require-lazy-grunt": "*",
+		"grunt-contrib-clean": "*"
+	}
+}

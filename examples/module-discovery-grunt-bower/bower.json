@@ -1,0 +1,14 @@
+{
+	"name": "module-discovery-grunt-bower",
+	"version": "0.1.0",
+	"dependencies": {
+		"requirejs": "latest",
+		"requirejs-text": "latest",
+		"require-lazy": "latest",
+		"almond": "latest",
+		"jquery": "~1.10.2"
+	},
+	"devDependencies": {
+	},
+	"private": true
+}

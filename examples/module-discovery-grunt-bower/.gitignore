@@ -1,0 +1,5 @@
+.directory
+node_modules/*
+public/scripts/lib/*
+!public/scripts/lib/lazyload.js
+build/*

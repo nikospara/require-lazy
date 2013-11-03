@@ -122,7 +122,7 @@ define(["module","promise-adaptor"], function (module,promiseAdaptor) {
 		load: function(name, parentRequire, onload, config) {
 			onload(new LazyStub(name, parentRequire));
 		},
-		pluginBuilder: "lib/lazy-builder",
+		pluginBuilder: "lazy-builder",
 		registerBundle: registerBundle,
 		registerModule: registerModule,
 		getModule: getModule

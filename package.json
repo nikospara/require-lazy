@@ -6,6 +6,9 @@
 		"name": "Nikos Paraskevopoulos",
 		"email": "nikospara@yahoo.com"
 	},
+	"engines": {
+		"node": "0.10.x"
+	},
 	"dependencies": {
 		"requirejs": "2.x",
 		"extend": "1.x"

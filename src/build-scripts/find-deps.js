@@ -1,7 +1,6 @@
 // find dependencies
 var
 	rjs = require("requirejs"),
-	fs = require("fs"),
 	path = require("path"),
 	extend = require("extend"),
 	shared = require("./shared"),
@@ -12,13 +11,12 @@ var
 
 
 function findDeps(options, config, callback, errback) {
-	var entryModule = options.entryModule || config.name, mainConfig;
+	var entryModule = options.entryModule || config.name;
 	
 	options = extend(true, {}, options);
 	options.baseUrl = config.baseUrl;
 	
-	mainConfig = loadMainConfig(options, config);
-	mapPathInverse.setMainConfig(mainConfig);
+	mapPathInverse.setMainConfig(options, config);
 	
 	config = extend(true, {}, config);
 	// deleting these two signals single file optimization
@@ -36,28 +34,6 @@ function findDeps(options, config, callback, errback) {
 	}));
 	
 	buildAllModules(options, config, entryModule, callback, errback);
-}
-
-function loadMainConfig(options, config) {
-	var ret = null, mainConfigFileContents;
-	if( config && config.mainConfigFile ) {
-		if( typeof(options.makeBuildRelativePath) !== "function" ) throw new Error("options should contain a method makeBuildRelativePath()");
-		mainConfigFileContents = fs.readFileSync(options.makeBuildRelativePath(config.mainConfigFile), {encoding:"utf8"});
-		ret = evalMainConfig();
-	}
-	return ret;
-	
-	function evalMainConfig() {
-		var realRequire = require, requirejs, originalObject, config;
-		originalObject = require = requirejs = {
-			config: function(cfg) { config = cfg; } // configuration with the `require.config(...)` or `requirejs.config(...)` case
-		};
-		eval(mainConfigFileContents);
-		if( require !== originalObject ) config = require; // configuration with the `var require = ...` case
-		else if( requirejs !== originalObject ) config = requirejs; // configuration with the `var requirejs = ...` case
-		require = realRequire;
-		return config;
-	}
 }
 
 function buildAllModules(options, config, entryModule, callback, errback) {

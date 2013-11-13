@@ -226,8 +226,8 @@ function flagBundlesIncludedByCommonParentModule(modules,bundles) {
 		var ret = moduleAncestors[module.name];
 		if( ret == null ) {
 			ret = [];
-			addParents(ret, module);
 			moduleAncestors[module.name] = ret;
+			addParents(ret, module);
 		}
 		return ret;
 		

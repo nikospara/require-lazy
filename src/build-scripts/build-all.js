@@ -119,7 +119,7 @@ function discoveredModules(options) {
 }
 
 function buildBundles(bundlesArray, options, config, callback, errback) {
-	var nextBundle;
+	var nextBundle, mainConfig = shared.loadMainConfig(options, config);
 	bundlesArray = bundlesArray.slice(0);
 	loop();
 	
@@ -131,7 +131,7 @@ function buildBundles(bundlesArray, options, config, callback, errback) {
 				loop();
 			}
 			else {
-				buildBundle(options, config, nextBundle, loop, errback);
+				buildBundle(options, config, mainConfig, nextBundle, loop, errback);
 			}
 		}
 		else {
@@ -140,10 +140,10 @@ function buildBundles(bundlesArray, options, config, callback, errback) {
 	}
 }
 
-function buildBundle(options, config, bundle, callback, errback) {
+function buildBundle(options, config, mainConfig, bundle, callback, errback) {
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, "bundles", bundle.id + ".js"));
 	delete config.name;
-	config.exclude = [];
+	config.exclude = mainConfig.deps || [];
 	config.include = bundle.deps;
 	rjs.optimize(config, function() {
 		makeChecksum(config.out, function(hash) {

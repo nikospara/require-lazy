@@ -1,7 +1,7 @@
 var inversePaths,
 	util = require("util"),
-	fs = require("fs"),
-	pathModule = require("path");
+	pathModule = require("path"),
+	shared = require("./shared");
 
 function mapPathInverse(path) {
 	if( inversePaths != null ) path = mapPathInverseInner(path);
@@ -23,7 +23,7 @@ function mapPathInverseInner(path) {
 mapPathInverse.setMainConfig = function(options, config) {
 	var x, i, mainConfig, baseFullUrl;
 	baseFullUrl = options.makeBuildRelativePath(config.baseUrl).replace(/\\/g,"/");
-	mainConfig = loadMainConfig(options, config);
+	mainConfig = shared.loadMainConfig(options, config);
 	if( mainConfig && mainConfig.paths ) {
 		inversePaths = {};
 		for( x in mainConfig.paths ) {
@@ -48,28 +48,6 @@ mapPathInverse.setMainConfig = function(options, config) {
 		inversePaths[fullPath] = name;
 	}
 };
-
-function loadMainConfig(options, config) {
-	var ret = null, mainConfigFileContents;
-	if( config && config.mainConfigFile ) {
-		if( typeof(options.makeBuildRelativePath) !== "function" ) throw new Error("options should contain a method makeBuildRelativePath()");
-		mainConfigFileContents = fs.readFileSync(options.makeBuildRelativePath(config.mainConfigFile), {encoding:"utf8"});
-		ret = evalMainConfig();
-	}
-	return ret;
-	
-	function evalMainConfig() {
-		var realRequire = require, requirejs, originalObject, config;
-		originalObject = require = requirejs = {
-			config: function(cfg) { config = cfg; } // configuration with the `require.config(...)` or `requirejs.config(...)` case
-		};
-		eval(mainConfigFileContents);
-		if( require !== originalObject ) config = require; // configuration with the `var require = ...` case
-		else if( requirejs !== originalObject ) config = requirejs; // configuration with the `var requirejs = ...` case
-		require = realRequire;
-		return config;
-	}
-}
 
 
 module.exports = mapPathInverse;

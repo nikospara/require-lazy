@@ -1,5 +1,6 @@
 // shared code
 var
+	fs = require("fs"),
 	extend = require("extend"),
 	
 	LIB_LAZY = "lazy",
@@ -128,10 +129,33 @@ function putLazyRegistryText(config, text) {
 	config.rawText["lazy-registry"] = text;
 }
 
+function loadMainConfig(options, config) {
+	var ret = null, mainConfigFileContents;
+	if( config && config.mainConfigFile ) {
+		if( typeof(options.makeBuildRelativePath) !== "function" ) throw new Error("options should contain a method makeBuildRelativePath()");
+		mainConfigFileContents = fs.readFileSync(options.makeBuildRelativePath(config.mainConfigFile), {encoding:"utf8"});
+		ret = evalMainConfig();
+	}
+	return ret;
+	
+	function evalMainConfig() {
+		var realRequire = require, requirejs, originalObject, config;
+		originalObject = require = requirejs = {
+			config: function(cfg) { config = cfg; } // configuration with the `require.config(...)` or `requirejs.config(...)` case
+		};
+		eval(mainConfigFileContents);
+		if( require !== originalObject ) config = require; // configuration with the `var require = ...` case
+		else if( requirejs !== originalObject ) config = requirejs; // configuration with the `var requirejs = ...` case
+		require = realRequire;
+		return config;
+	}
+}
+
 
 module.exports = {
 	ROOT_IMPLICIT_DEPS: ROOT_IMPLICIT_DEPS,
 	removePluginsFromName: removePluginsFromName,
 	createModulesRegistryText: createModulesRegistryText,
-	putLazyRegistryText: putLazyRegistryText
+	putLazyRegistryText: putLazyRegistryText,
+	loadMainConfig: loadMainConfig
 };

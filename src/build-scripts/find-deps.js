@@ -13,12 +13,12 @@ var
 function findDeps(options, config, callback, errback) {
 	var entryModule = options.entryModule || config.name;
 	
+	config = extend(true, {}, config);
 	options = extend(true, {}, options);
 	options.baseUrl = config.baseUrl;
 	
 	mapPathInverse.setMainConfig(options, config);
 	
-	config = extend(true, {}, config);
 	// deleting these two signals single file optimization
 	delete config.appDir;
 	delete config.dir;
@@ -37,7 +37,7 @@ function findDeps(options, config, callback, errback) {
 }
 
 function buildAllModules(options, config, entryModule, callback, errback) {
-	var modules = {}, modulesToCompile = [];
+	var modules = {}, modulesToCompile = [], mainConfig = shared.loadMainConfig(options, config);
 	
 	if( typeof(options.discoverModules) === "function" ) translateModuleNames(options.discoverModules());
 	buildModule(entryModule, null);
@@ -50,6 +50,10 @@ function buildAllModules(options, config, entryModule, callback, errback) {
 		if( parentModuleName == null ) {
 			if( config.include == null ) config.include = shared.ROOT_IMPLICIT_DEPS;
 			else config.include = config.include.concat(shared.ROOT_IMPLICIT_DEPS);
+		}
+		else if( mainConfig.deps && mainConfig.deps.length > 0 ) {
+			if( config.exclude == null ) config.exclude = mainConfig.deps;
+			else config.exclude = config.exclude.concat(mainConfig.deps);
 		}
 		rjs.optimize(config, function(buildResponse) {
 			config.exclude = originalExcludes;

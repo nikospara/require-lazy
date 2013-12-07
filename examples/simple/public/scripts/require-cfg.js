@@ -8,5 +8,7 @@ require.config({
 		"promise-adaptor": "lib/promise-adaptor-jquery"
 	},
 	
+	deps: ["app/bug3"], //  Check for bug from issue 3: https://github.com/nikospara/require-lazy/issues/3
+	
 	GUARD: null
 });

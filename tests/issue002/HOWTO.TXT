@@ -1,0 +1,9 @@
+How to test (manually)
+----------------------
+
+mkdir node_modules
+	npm install require-lazy
+-OR-
+	npm link require-lazy
+mkdir bower_components/require-lazy
+node build.js

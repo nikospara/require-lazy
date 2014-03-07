@@ -33,11 +33,11 @@ function buildAll(pmresult, options, config, callback, errback) {
 	// the main module must be built last so that hashes are calculated
 	splitModules = splitMainModuleFromArray(pmresult.modulesArray, options, config);
 	
-	buildModules(splitModules.otherModules, options, config, function() {
+	buildModules(splitModules.otherModules, pmresult.bundles, options, config, function() {
 		buildBundles(pmresult.bundles.bundlesArray, options, config, function() {
 			// `lazy-registry` is generated, provide the text here
 			shared.putLazyRegistryText(config, createModulesRegistryText(pmresult, options));
-			buildModules(splitModules.mainModule, options, config, function() {
+			buildModules(splitModules.mainModule, pmresult.bundles, options, config, function() {
 				callback();
 			}, errback);
 		}, errback);
@@ -69,7 +69,7 @@ function splitMainModuleFromArray(modulesArray, options, config) {
 	return ret;
 }
 
-function buildModules(modulesArray, options, config, callback, errback) {
+function buildModules(modulesArray, bundles, options, config, callback, errback) {
 	var nextModule;
 	modulesArray = modulesArray.slice(0);
 	loop();
@@ -77,7 +77,7 @@ function buildModules(modulesArray, options, config, callback, errback) {
 	function loop() {
 		nextModule = modulesArray.shift();
 		if( typeof(nextModule) !== "undefined" ) {
-			buildModule(options, config, nextModule, loop, errback);
+			buildModule(options, config, nextModule, bundles, loop, errback);
 		}
 		else {
 			if( typeof(callback) === "function" ) callback();
@@ -85,8 +85,8 @@ function buildModules(modulesArray, options, config, callback, errback) {
 	}
 }
 
-function buildModule(options, config, module, callback, errback) {
-	var moduleName = module.name, originalIncludes = config.include;
+function buildModule(options, config, module, bundles, callback, errback) {
+	var moduleName = module.name, originalIncludes = config.include, moduleBundles = makeModuleBundles();
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, removePluginsFromName(moduleName) + "-built.js"));
 	config.name = moduleName;
 	config.exclude = module.excludedDeps;
@@ -95,7 +95,13 @@ function buildModule(options, config, module, callback, errback) {
 		else config.include = config.include.concat(shared.ROOT_IMPLICIT_DEPS);
 		config.include = config.include.concat(discoveredModules(options));
 	}
+	config.onBuildWrite = function (moduleName, path, contents) {
+		var b = bundles.depsToBundleMap[moduleName];
+		if( b != null && !moduleBundles[b.id] ) contents = "";
+		return contents;
+	};
 	rjs.optimize(config, function() {
+		delete config.onBuildWrite;
 		config.include = originalIncludes;
 		makeChecksum(config.out, function(hash) {
 			module.hash = hash;
@@ -105,6 +111,14 @@ function buildModule(options, config, module, callback, errback) {
 		if( typeof(errback) === "function" ) errback("build-all::buildModule", err, module);
 		else console.log("build-all::buildModule(%s): %s",module.name,err);
 	});
+	
+	function makeModuleBundles() {
+		var i, ret = {};
+		for( i=0; i < module.bundleDeps.length; i++ ) {
+			ret[module.bundleDeps[i].id] = true;
+		}
+		return ret;
+	}
 }
 
 function discoveredModules(options) {
@@ -145,7 +159,11 @@ function buildBundle(options, config, mainConfig, bundle, callback, errback) {
 	delete config.name;
 	config.exclude = mainConfig.deps || [];
 	config.include = bundle.deps;
+	config.onBuildWrite = function (moduleName, path, contents) {
+		return config.include.indexOf(moduleName) >= 0 ? contents : "";
+	};
 	rjs.optimize(config, function() {
+		delete config.onBuildWrite;
 		makeChecksum(config.out, function(hash) {
 			bundle.hash = hash;
 			callback();

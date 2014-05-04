@@ -3,7 +3,11 @@ var
 	fs = require("fs"),
 	requireLazy = require("require-lazy"),
 	options = require("./options.js").config,
-	config = require("./app.build.json");
+	config = require("./app.build.json"),
+	MARKER1 = "//ISSUE4 - onBuildWrite MARKER",
+	onBuildWrite1Calls = 0;
+
+config.onBuildWrite = onBuildWrite;
 
 // get a fresh copy of the files
 copyFileSync("../../../src/lib/lazy.js", __dirname + "/../public/scripts/lib/lazy.js");
@@ -14,11 +18,13 @@ requireLazy.build(options, config, function(modules, pmresult) { // this callbac
 	var util = require("util"), path = require("path");
 	fs.writeFileSync(path.join(options.outputBaseDir, "modules.js"), util.inspect(modules,{depth:null,colors:false}));
 	fs.writeFileSync(path.join(options.outputBaseDir, "bundles.js"), util.inspect(pmresult.bundles,{depth:null,colors:false}));
-	console.log("success");
+	console.log("finished");
 	var bug3 = checkBug3(pmresult);
 	if( bug3 ) console.log("BUG 3 occured: " + bug3);
 	var modulePlacementError = validateAmdModulePlacement(modules, pmresult.bundles);
 	if( modulePlacementError ) console.log("Misplaced AMD modules: " + util.inspect(modulePlacementError,{depth:null,colors:false}));
+	if( onBuildWrite1Calls !== 1 ) console.log("ERROR: onBuildWrite called " + onBuildWrite1Calls + " times");
+	if( !bug3 && !modulePlacementError && onBuildWrite1Calls === 1 ) console.log("success");
 });
 
 function copyFileSync(srcFile, destFile) {
@@ -103,4 +109,17 @@ function validateAmdModulePlacement(modules, bundles) {
 		}
 		return false;
 	}
+}
+
+// After fixing issue004, any user-specified onBuildWrite() would not get called;
+// Here we make sure that it is called from out own onBuildWrite() that also fixes issue004.
+// Additionally, we only want to call onBuildWrite() in the actual outputting
+// of the bundles, not while finding dependencies. We also test this here.
+function onBuildWrite(moduleName, path, contents) {
+	if( moduleName === "app/d1" ) {
+		console.log("onBuildWrite: app/d1");
+		onBuildWrite1Calls += 1;
+		contents = MARKER1 + "\n" + contents;
+	}
+	return contents;
 }

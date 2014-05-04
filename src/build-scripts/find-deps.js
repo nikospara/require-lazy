@@ -24,6 +24,8 @@ function findDeps(options, config, callback, errback) {
 	delete config.dir;
 	// make it explicit that no optimization must be done at this point for faster execution
 	config.optimize = "none";
+	// skip any onBuildWrite functions, as we do not intend to write anything yet
+	config.onBuildWrite = null;
 	config.baseUrl = path.normalize(path.join(options.basePath, config.baseUrl));
 	// `lazy-registry` is generated, provide the text here
 	shared.putLazyRegistryText(config, shared.createModulesRegistryText(null, options, {

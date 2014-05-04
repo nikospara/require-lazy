@@ -86,7 +86,7 @@ function buildModules(modulesArray, bundles, options, config, callback, errback)
 }
 
 function buildModule(options, config, module, bundles, callback, errback) {
-	var moduleName = module.name, originalIncludes = config.include, moduleBundles = makeModuleBundles();
+	var moduleName = module.name, originalIncludes = config.include, moduleBundles = makeModuleBundles(), originalOnBuildWrite = config.onBuildWrite;
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, removePluginsFromName(moduleName) + "-built.js"));
 	config.name = moduleName;
 	config.exclude = module.excludedDeps;
@@ -98,10 +98,11 @@ function buildModule(options, config, module, bundles, callback, errback) {
 	config.onBuildWrite = function (moduleName, path, contents) {
 		var b = bundles.depsToBundleMap[moduleName];
 		if( b != null && !moduleBundles[b.id] ) contents = "";
+		else if( typeof(originalOnBuildWrite) === "function" ) contents = originalOnBuildWrite(moduleName, path, contents);
 		return contents;
 	};
 	rjs.optimize(config, function() {
-		delete config.onBuildWrite;
+		config.onBuildWrite = originalOnBuildWrite;
 		config.include = originalIncludes;
 		makeChecksum(config.out, function(hash) {
 			module.hash = hash;
@@ -155,15 +156,20 @@ function buildBundles(bundlesArray, options, config, callback, errback) {
 }
 
 function buildBundle(options, config, mainConfig, bundle, callback, errback) {
+	var originalOnBuildWrite = config.onBuildWrite
 	config.out = path.normalize(path.join(options.outputBaseDir, options.baseUrl, "bundles", bundle.id + ".js"));
 	delete config.name;
 	config.exclude = mainConfig.deps || [];
 	config.include = bundle.deps;
 	config.onBuildWrite = function (moduleName, path, contents) {
-		return config.include.indexOf(moduleName) >= 0 ? contents : "";
+		if( config.include.indexOf(moduleName) >= 0 ) {
+			if( typeof(originalOnBuildWrite) === "function" ) contents = originalOnBuildWrite(moduleName, path, contents);
+		}
+		else contents = "";
+		return contents;
 	};
 	rjs.optimize(config, function() {
-		delete config.onBuildWrite;
+		config.onBuildWrite = originalOnBuildWrite;
 		makeChecksum(config.out, function(hash) {
 			bundle.hash = hash;
 			callback();

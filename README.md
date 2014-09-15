@@ -45,7 +45,7 @@ This project requires, includes, or uses code from:
 - [lazyload](https://github.com/rgrove/lazyload/)
 - [r.js](https://github.com/jrburke/r.js)
 - [node.extend](https://github.com/dreamerslab/node.extend)
-- [jQuery](http://jquery.com/) (dependency on Deferred implementation, can use any other library through adapter)
+- [jQuery](http://jquery.com/) (dependency on Deferred implementation, can use any other library through adapter; see [this test](https://github.com/nikospara/require-lazy/tree/master/tests/issue005-jqueryless) for an example)
 - [expressjs](http://expressjs.com/) (for serving the examples)
 
 Development Status

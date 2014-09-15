@@ -1,0 +1,6 @@
+.directory
+node_modules/*
+public/scripts/lib/*
+!public/scripts/lib/lazyload.js
+!public/scripts/lib/q.js
+build/*

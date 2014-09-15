@@ -68,13 +68,18 @@ define(["module","promise-adaptor"], function (module,promiseAdaptor) {
 			bundlesToLoadDeferred.resolve();
 		});
 		
-		jQuery.when.apply(jQuery, whenPromises).done(function() {
-			self.parentRequire([self.name], function(m) {
-				self.parentRequire = null;
-				self.realModule = m;
-				self.deferred.resolve(m);
-			});
-		});
+		promiseAdaptor.all(whenPromises).then(
+			function() {
+				self.parentRequire([self.name], function(m) {
+					self.parentRequire = null;
+					self.realModule = m;
+					self.deferred.resolve(m);
+				});
+			},
+			function(err) {
+				self.deferred.reject(err);
+			}
+		);
 		
 		
 		function loadBundle(bundleId, bundle, parentRequire) {

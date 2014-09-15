@@ -1,0 +1,13 @@
+{
+	"name": "issue5",
+	"version": "0.1.0",
+	"dependencies": {
+		"requirejs": "latest",
+		"requirejs-text": "latest",
+		"require-lazy": "latest",
+		"almond": "latest"
+	},
+	"devDependencies": {
+	},
+	"private": true
+}

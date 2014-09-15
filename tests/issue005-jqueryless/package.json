@@ -1,0 +1,14 @@
+{
+	"name": "issue5",
+	"description": "Test case for issue 5 - jQuery is not required for require-lazy",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"express": "3.x"
+	},
+	"devDependencies": {
+		"grunt": "0.4.x",
+		"require-lazy-grunt": "*",
+		"grunt-contrib-clean": "*"
+	}
+}

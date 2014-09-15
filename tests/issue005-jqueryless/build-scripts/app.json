@@ -1,0 +1,16 @@
+{
+	"appDir": "../public/",
+	"baseUrl": "scripts/",
+	"mainConfigFile": "public/scripts/require-cfg.js",
+	"dir": "../build/IRRELEVANT",
+	"inlineText": true,
+	"name": "main/main",
+	"optimize": "none",
+	"normalizeDirDefines": true,
+	
+	"paths": {
+		"jquery": "empty:"
+	},
+	
+	"GUARD": null
+}

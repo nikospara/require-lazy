@@ -1,15 +1,15 @@
-define(["jquery"],function($) {
+define(["lib/q"], function(q) {
 	"use strict";
-
+	
 	return {
 		makeDeferred: function() {
-			return $.Deferred();
+			return q.defer();
 		},
 		makePromise: function(deferred) {
-			return deferred.promise();
+			return deferred.promise;
 		},
 		all: function(promises) {
-			return $.when.apply($, promises)
+			return q.all(promises);
 		}
 	};
 });

@@ -1,3 +1,5 @@
+**This example is deprecated due to a misconception, see [this issue](https://github.com/jrburke/requirejs/issues/1048). DO NOT USE IT!!!**
+
 Mod of the simple example of Require-Lazy utilizing the packages feature
 ========================================================================
 

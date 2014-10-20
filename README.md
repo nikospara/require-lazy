@@ -50,8 +50,11 @@ This project requires, includes, or uses code from:
 
 Development Status
 ------------------
-This project is an idea in the early stages of development. While many things work, it is expected
+This project is an idea under development. While many things work, it is expected
 that many more will not. Even worse, some things may not work *as* expected. Moreover the code is
 not thoroughly tested yet.
+
+However, I am quite satisfied with how things work at the moment; I do not expect any radical API/usage changes.
+This means that this project can be considered fairly stable API/usage-wise.
 
 Ideas, critisism, comments, code contributions are all welcome!

@@ -36,13 +36,14 @@ function copyFileSync(srcFile, destFile) {
  * Check for bug from issue 3: https://github.com/nikospara/require-lazy/issues/3
  */
 function checkBug3(pmresult) {
-	var fileContents, i, bundlesArray = pmresult.bundles.bundlesArray;
+	var fileContents, i, bundlesArray = pmresult.bundles.bundlesArray
+		STR_TO_SEARCH='\tconsole.log("BUG 3 - if this is printed more than once, then issue 3 is not solved");';;
 	fileContents = fs.readFileSync("../build/scripts/main/main-built.js", {encoding:"utf8"});
-	if( fileContents.indexOf("\tconsole.log(\"BUG 3\");") < 0 ) return "not found in main-built.js";
+	if( fileContents.indexOf(STR_TO_SEARCH) < 0 ) return "not found in main-built.js";
 	for( i=0; i < bundlesArray.length; i++ ) {
 		if( bundlesArray[i].exclusive || bundlesArray[i].includedIn ) continue;
 		fileContents = fs.readFileSync("../build/scripts/bundles/" + bundlesArray[i].id + ".js", {encoding:"utf8"});
-		if( fileContents.indexOf("\tconsole.log(\"BUG 3\");") >= 0 ) return "found in bundle " + bundlesArray[i].id;
+		if( fileContents.indexOf(STR_TO_SEARCH) >= 0 ) return "found in bundle " + bundlesArray[i].id;
 	}
 	return false;
 }

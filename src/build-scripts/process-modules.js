@@ -4,15 +4,15 @@ var
 	crypto = require("crypto"),
 	shared = require("./shared"),
 	
-	LIB_LAZY = "lazy";
+	LIB_LAZY = shared.LIB_LAZY;
 
-function processModules(modules) {
+function processModules(modules, options) {
 	var
 		modulesArray = modulesToArray(modules),
 		depsArray = depsToArray(modules),
 		depsUsageArray = depsUsage(depsArray,modulesArray),
 		bundles = extractBundles(depsArray, depsUsageArray);
-	addBundleDeps(modules,bundles);
+	addBundleDeps(modules,bundles,options);
 	flagBundlesIncludedByCommonParentModule(modules,bundles);
 	return {
 		modulesArray: modulesArray,
@@ -133,7 +133,7 @@ function isUsageExclusive(usage) {
 	return true;
 }
 
-function addBundleDeps(modules,bundles) {
+function addBundleDeps(modules,bundles,options) {
 	var x, m;
 	
 	for( x in modules ) {
@@ -152,7 +152,7 @@ function addBundleDeps(modules,bundles) {
 			excludeDepsFromSameBundle(bundle,deps);
 		}
 		module.bundleDeps = bundleDeps;
-		if( module.parents.length > 0 ) excludedDeps.push(LIB_LAZY);
+		if( module.parents.length > 0 ) excludedDeps.push(options.libLazy || LIB_LAZY);
 		module.excludedDeps = excludedDeps;
 	}
 	

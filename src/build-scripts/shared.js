@@ -34,7 +34,7 @@ function createModulesRegistryText(pmresult, options, localOptions) {
 		
 		if( localOptions.inludeModuleName ) text += "'lazy-registry',";
 		
-		text += "['" + LIB_LAZY + "','require','promise-adaptor'], function(lazy,require,promiseAdaptor) {";
+		text += "['" + (options.libLazy || LIB_LAZY) + "','require','promise-adaptor'], function(lazy,require,promiseAdaptor) {";
 		
 		if( localOptions.generateBody ) {
 			text +=
@@ -153,6 +153,7 @@ function loadMainConfig(options, config) {
 
 
 module.exports = {
+	LIB_LAZY: LIB_LAZY,
 	ROOT_IMPLICIT_DEPS: ROOT_IMPLICIT_DEPS,
 	removePluginsFromName: removePluginsFromName,
 	createModulesRegistryText: createModulesRegistryText,

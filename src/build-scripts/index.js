@@ -11,7 +11,7 @@ module.exports.shared = shared;
 
 function build(options, config, callback, errback) {
 	findDeps(options, config, function(modules) {
-		var pmresult = processModules(modules);
+		var pmresult = processModules(modules, options);
 		buildAll(pmresult, options, config, function() {
 			if( typeof(callback) === "function" ) callback(modules, pmresult);
 		}, errback);

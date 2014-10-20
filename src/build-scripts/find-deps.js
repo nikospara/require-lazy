@@ -6,8 +6,7 @@ var
 	shared = require("./shared"),
 	mapPathInverse = require("./map-path-inverse"),
 
-	LIB_LAZY = "lazy",
-	PREFIX_LAZY = LIB_LAZY + "!";
+	LIB_LAZY = shared.LIB_LAZY;
 
 
 function findDeps(options, config, callback, errback) {
@@ -39,7 +38,8 @@ function findDeps(options, config, callback, errback) {
 }
 
 function buildAllModules(options, config, entryModule, callback, errback) {
-	var modules = {}, modulesToCompile = [], mainConfig = shared.loadMainConfig(options, config);
+	var modules = {}, modulesToCompile = [], mainConfig = shared.loadMainConfig(options, config),
+		PREFIX_LAZY = (options.libLazy || LIB_LAZY) + "!";
 	
 	if( typeof(options.discoverModules) === "function" ) translateModuleNames(options.discoverModules());
 	buildModule(entryModule, null);

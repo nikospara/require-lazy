@@ -8,8 +8,7 @@ var
 	shared = require("./shared"),
 	removePluginsFromName = shared.removePluginsFromName,
 	
-	LIB_LAZY = "lazy",
-	PREFIX_LAZY = LIB_LAZY + "!";
+	LIB_LAZY = shared.LIB_LAZY;
 
 
 function buildAll(pmresult, options, config, callback, errback) {
@@ -28,7 +27,7 @@ function buildAll(pmresult, options, config, callback, errback) {
 	// remember the original entry point name
 	config.originalName = config.name;
 	// communicate the module name
-	addLibLazyNameToConfig(config);
+	addLibLazyNameToConfig(config, options);
 	
 	// the main module must be built last so that hashes are calculated
 	splitModules = splitMainModuleFromArray(pmresult.modulesArray, options, config);
@@ -44,18 +43,18 @@ function buildAll(pmresult, options, config, callback, errback) {
 	}, errback);
 }
 
-function addLibLazyNameToConfig(config) {
+function addLibLazyNameToConfig(config, options) {
 	var lazycfg = config.config;
 	if( lazycfg == null ) {
 		lazycfg = {};
 		config.config = lazycfg;
 	}
-	lazycfg = config.config[LIB_LAZY];
+	lazycfg = config.config[options.libLazy || LIB_LAZY];
 	if( lazycfg == null ) {
 		lazycfg = {};
-		config.config[LIB_LAZY] = lazycfg;
+		config.config[options.libLazy || LIB_LAZY] = lazycfg;
 	}
-	lazycfg.lazyModuleName = LIB_LAZY;
+	lazycfg.lazyModuleName = (options.libLazy || LIB_LAZY);
 }
 
 function splitMainModuleFromArray(modulesArray, options, config) {
@@ -123,7 +122,8 @@ function buildModule(options, config, module, bundles, callback, errback) {
 }
 
 function discoveredModules(options) {
-	var ret = [], i, disovered;
+	var ret = [], i, disovered,
+		PREFIX_LAZY = (options.libLazy || LIB_LAZY) + "!";
 	if( typeof(options.discoverModules) === "function" ) {
 		disovered = options.discoverModules();
 		for( i=0; i < disovered.length; i++ ) {

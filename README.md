@@ -57,4 +57,4 @@ not thoroughly tested yet.
 However, I am quite satisfied with how things work at the moment; I do not expect any radical API/usage changes.
 This means that this project can be considered fairly stable API/usage-wise.
 
-Ideas, critisism, comments, code contributions are all welcome!
+Ideas, criticism, comments, code contributions are all welcome!
